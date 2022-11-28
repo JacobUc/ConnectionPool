@@ -1,0 +1,68 @@
+{
+    "mvc": [
+        {
+            "transactionId": "",
+            "name": "",
+            "control": "",
+            "model": "",
+            "function": ""
+        },
+        {
+            "transactionId": "",
+            "name": "",
+            "control": "",
+            "model": "",
+            "function": ""
+        }
+    ],
+    "log": [
+        {
+            "pattern": "src/logger/log/MyLogger.log",
+            "limit": "1000",
+            "maxLogFiles": "4"
+        }
+    ],
+    "databaseAccess": [
+        {
+            "dbms": "mysql",
+            "databaseName": "prueba",
+            "host": "localhost",
+            "user": "root",
+            "password": "contra123",
+            "port": "3306",
+            "driver":"com.mysql.cj.jdbc.Driver"
+        },
+        {
+            "dbms": "postgresql",
+            "databaseName": "ejemplo",
+            "host": "localhost",
+            "user": "postgres",
+            "password": "root",
+            "port": "5050",
+            "driver":"org.postgresql.Driver"
+        },
+        {
+            "dbms": "mariadb",
+            "databaseName": "ejemplo",
+            "host": "localhost",
+            "user": "postgres",
+            "password": "root",
+            "port": "5050",
+            "driver":"org.postgresql.Driver"
+        }
+    ],
+    "connectionPool": [
+        {
+            "initialSize" : "6",
+            "maxTotal": "10",
+            "maxIdle": "3",
+            "minIdle": "2"
+        },
+        {
+            "initialSize" : "5",
+            "maxTotal": "8",
+            "maxIdle": "2",
+            "minIdle": "2"
+        }
+    ]
+}
