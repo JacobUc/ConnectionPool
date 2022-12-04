@@ -1,25 +1,37 @@
 package ThreadsPoolFlow;
 
-//https://www.simplilearn.com/tutorials/java-tutorial/thread-in-java#what_is_a_thread_in_java
-public class PoolFlow implements Runnable {
+import java.sql.Connection;
+import DBConnection.*;
+
+public class PoolFlow {
     
-    //diferentes strings como json
-
-    public synchronized void a(){
-        System.out.println("Interrumpiendo todo");
-    }
-
-    @Override
-    public void run() {
-        for(int i = 0; i< 10; i++){
-            if(i == 3)
-                a();
-            System.out.println(i);
-        }
-    }
-
-
     public static void main(String[] args) {
+        DBSettings dbSettings = new DBSettings();
+        dbSettings.setIndex(0);
+        dbSettings.loadConfiguration();
+
+        PoolSettingsThread poolSettings = new PoolSettingsThread();
+        poolSettings.setIndex(0);
+        poolSettings.loadConfiguration();
+        poolSettings.start();
+
+        ConnectionPoolThread dbConnection = new ConnectionPoolThread();
+        dbConnection.setDBSettings(dbSettings);
+        dbConnection.setPoolSettings(poolSettings);
+        dbConnection.loadConnection();
+        
+        Connection connection = dbConnection.getConnection();
+
+        while( Thread.currentThread().isAlive() ){
+
+            if( poolSettings.getHaCambiadoJSON() ){
+                dbConnection.setPoolSettings(poolSettings);
+                System.out.println( "Reasignando las config del pool: " + poolSettings.getConfigPool() );
+                System.out.println( "El valor actual de InitialSize es: " + dbConnection.getPoolSettings().getInitialSize() );
+                dbConnection.closeConnection(connection);
+                connection = dbConnection.getConnection();
+            }
+        }
         
     }
 }

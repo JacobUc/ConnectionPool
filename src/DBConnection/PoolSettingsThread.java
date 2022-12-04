@@ -5,8 +5,7 @@ import org.json.simple.*;
 import InterfaceReader.setConfigJSON;
 import configReader.ValidarLectura;
 
-public class PoolSettings implements setConfigJSON {
-
+public class PoolSettingsThread extends Thread implements setConfigJSON {
     private int initialSize;
     private int maxTotal;
     private int maxIdle;
@@ -14,13 +13,14 @@ public class PoolSettings implements setConfigJSON {
     private JSONObject configPool;
     private JSONArray poolArray;
     private int index;
+    private boolean haCambiado;
 
-    public PoolSettings(){
+    public PoolSettingsThread(){
         readConfiguration();
     }
 
     @Override
-    public void readConfiguration() {
+    public synchronized void readConfiguration() {
         String configPath = "files/settings.json";
         ValidarLectura validacionJSON = new ValidarLectura();
         JSONObject configObject = validacionJSON.extractJSONObject(validacionJSON.readJSON(configPath));
@@ -39,6 +39,35 @@ public class PoolSettings implements setConfigJSON {
         }catch(SecurityException | NumberFormatException e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void run() {
+
+        JSONObject poolSettings = getConfigPool();
+        JSONObject newPoolSettings = new JSONObject();
+
+        while( Thread.currentThread().isAlive() ){
+            readConfiguration();
+            loadConfiguration();
+            newPoolSettings = getConfigPool();
+            boolean isSameSettings = poolSettings.equals(newPoolSettings);
+            if( !isSameSettings ){
+                //si no son lo mismo, cambiamos las settings
+                System.out.println("--- NO son lo mismo ---");
+                haCambiado = true;
+                poolSettings = newPoolSettings;
+            }else{
+                System.out.println("--- Son lo mismo ---");
+            }
+            haCambiado = false;
+            try { Thread.sleep( 3000 ); } 
+            catch (InterruptedException e) { }
+        }
+    }
+
+    public boolean getHaCambiadoJSON(){
+        return this.haCambiado;
     }
 
     public void setIndex( int index ){
@@ -92,12 +121,4 @@ public class PoolSettings implements setConfigJSON {
     public JSONArray getPoolArray() {
         return poolArray;
     }
-
-    public static void main(String[] args) {
-        PoolSettings a = new PoolSettings();
-        a.setIndex(0);
-        a.loadConfiguration();
-        System.out.println(a.getConfigPool());
-    }
-    
 }

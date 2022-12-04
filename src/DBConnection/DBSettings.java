@@ -4,7 +4,7 @@ import org.json.simple.*;
 import InterfaceReader.setConfigJSON;
 import configReader.ValidarLectura;
 
-public class DBSettings implements setConfigJSON {
+public class DBSettings implements setConfigJSON{
 
     private String SGBD;
     private String nameDB;
@@ -30,7 +30,7 @@ public class DBSettings implements setConfigJSON {
     }
 
     @Override
-    public void loadConfiguration() {
+    public synchronized void loadConfiguration() {
         JSONObject configDBObject = (JSONObject) dbArray.get(this.index);
         this.configDB = configDBObject;
         try{
@@ -41,7 +41,9 @@ public class DBSettings implements setConfigJSON {
             setUser((String)configDB.get("user"));
             setPort((String)configDB.get("port"));
             setDriver((String)configDB.get("driver"));
-        }catch(SecurityException | NumberFormatException e){
+            // System.out.println("Durmiendo un ratito mientras reajustamos");
+            // Thread.currentThread().sleep(8000);
+        }catch( SecurityException | NumberFormatException e){
             e.printStackTrace();
         }
     }
