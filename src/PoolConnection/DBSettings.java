@@ -1,4 +1,4 @@
-package DBConnection;
+package PoolConnection;
 
 import org.json.simple.*;
 import InterfaceReader.setConfigJSON;

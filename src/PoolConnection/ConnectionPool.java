@@ -1,4 +1,4 @@
-package DBConnection;
+package PoolConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -1,7 +1,8 @@
 package ThreadsPoolFlow;
 
 import java.sql.Connection;
-import DBConnection.*;
+
+import PoolConnection.*;
 
 public class PoolFlow {
     
