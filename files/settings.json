@@ -53,15 +53,15 @@
     ],
     "connectionPool": [
         {
-            "initialSize" : "6",
-            "maxTotal": "10",
+            "initialSize" : "4",
+            "maxTotal": "6",
             "maxIdle": "3",
-            "minIdle": "2"
+            "minIdle": "1"
         },
         {
-            "initialSize" : "5",
+            "initialSize" : "3",
             "maxTotal": "8",
-            "maxIdle": "2",
+            "maxIdle": "3",
             "minIdle": "2"
         }
     ]

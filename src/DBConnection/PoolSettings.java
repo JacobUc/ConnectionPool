@@ -5,8 +5,7 @@ import org.json.simple.*;
 import InterfaceReader.setConfigJSON;
 import configReader.ValidarLectura;
 
-public class PoolSettings implements setConfigJSON {
-
+public class PoolSettings extends Thread implements setConfigJSON {
     private int initialSize;
     private int maxTotal;
     private int maxIdle;
@@ -14,13 +13,14 @@ public class PoolSettings implements setConfigJSON {
     private JSONObject configPool;
     private JSONArray poolArray;
     private int index;
+    private boolean haCambiado;
 
     public PoolSettings(){
         readConfiguration();
     }
 
     @Override
-    public void readConfiguration() {
+    public synchronized void readConfiguration() {
         String configPath = "files/settings.json";
         ValidarLectura validacionJSON = new ValidarLectura();
         JSONObject configObject = validacionJSON.extractJSONObject(validacionJSON.readJSON(configPath));
@@ -29,16 +29,55 @@ public class PoolSettings implements setConfigJSON {
 
     @Override
     public synchronized void loadConfiguration() {
+        PoolSettingsValidator poolSettingsValidator = new PoolSettingsValidator();
         JSONObject poolObject = (JSONObject) poolArray.get(index);
         this.configPool = poolObject;
+
         try{
-            setInitialSize( Integer.valueOf( (String)configPool.get("initialSize")) );
-            setMaxTotal( Integer.valueOf( (String)configPool.get("maxTotal")) );
-            setMaxIdle( Integer.valueOf( (String)configPool.get("maxIdle")) );
-            setMinIdle( Integer.valueOf( (String)configPool.get("minIdle")) );
-        }catch(SecurityException | NumberFormatException e){
-            e.printStackTrace();
+            int initialSize = Integer.valueOf( (String)configPool.get("initialSize"));
+            int maxTotal = Integer.valueOf( (String)configPool.get("maxTotal"));
+            int maxIdle = Integer.valueOf( (String)configPool.get("maxIdle"));
+            int minIdle = Integer.valueOf( (String)configPool.get("minIdle"));
+            boolean areSettingsValid =  poolSettingsValidator.validateSizes( initialSize, maxTotal, maxIdle, minIdle );
+
+            if( !areSettingsValid ){
+                return;
+            }
+
+            setInitialSize( initialSize );
+            setMaxTotal( maxTotal );
+            setMaxIdle( maxIdle );
+            setMinIdle( minIdle );
+
+        }catch( NumberFormatException e){  }
+    }
+
+    @Override
+    public void run() {
+
+        JSONObject poolSettings = getConfigPool();
+        JSONObject newPoolSettings = new JSONObject();
+
+        while( Thread.currentThread().isAlive() ){
+            readConfiguration();
+            loadConfiguration();
+            newPoolSettings = getConfigPool();
+            boolean isSameSettings = poolSettings.equals(newPoolSettings);
+            if( !isSameSettings ){
+                System.out.println("--- NO son lo mismo ---");
+                haCambiado = true;
+                poolSettings = newPoolSettings;
+            }else{
+                System.out.println("--- Son lo mismo ---");
+            }
+            haCambiado = false;
+            try { Thread.sleep( 3000 ); } 
+            catch (InterruptedException e) { }
         }
+    }
+
+    public boolean getHaCambiadoJSON(){
+        return this.haCambiado;
     }
 
     public void setIndex( int index ){
@@ -92,12 +131,4 @@ public class PoolSettings implements setConfigJSON {
     public JSONArray getPoolArray() {
         return poolArray;
     }
-
-    public static void main(String[] args) {
-        PoolSettings a = new PoolSettings();
-        a.setIndex(0);
-        a.loadConfiguration();
-        System.out.println(a.getConfigPool());
-    }
-    
 }

@@ -41,8 +41,6 @@ public class DBSettings implements setConfigJSON{
             setUser((String)configDB.get("user"));
             setPort((String)configDB.get("port"));
             setDriver((String)configDB.get("driver"));
-            // System.out.println("Durmiendo un ratito mientras reajustamos");
-            // Thread.currentThread().sleep(8000);
         }catch( SecurityException | NumberFormatException e){
             e.printStackTrace();
         }
